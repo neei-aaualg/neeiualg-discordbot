@@ -1,0 +1,17 @@
+{
+  "name": "neei-discordbot",
+  "version": "1.0.0",
+  "description": "Bot de Discord em Node.js com discord.js v14 e Components V2",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "deploy": "node deploy-commands.js"
+  },
+  "dependencies": {
+    "discord-html-transcripts": "^3.2.0",
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.4.7"
+  }
+}

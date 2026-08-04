@@ -1,0 +1,53 @@
+# ==========================================
+# 📦 DEPENDÊNCIAS DO NODE.JS
+# ==========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ==========================================
+# 🔑 SEGREDOS E VARIÁVEIS DE AMBIENTE
+# ==========================================
+.env
+
+# ==========================================
+# 🎨 RECURSOS E IMAGENS PESADAS (ASSETS)
+# ==========================================
+src/assets/logo_discord.png
+src/assets/*.png
+src/assets/*.jpg
+src/assets/*.jpeg
+
+# ==========================================
+# 🖥️ FICHEIROS DO SISTEMA OPERATIVO
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ==========================================
+# 💻 EDITORES E IDES (VSCODE / JETBRAINS)
+# ==========================================
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# ==========================================
+# 📝 LOGS E FICHEIROS TEMPORÁRIOS
+# ==========================================
+logs/
+*.log
+*.pid
+*.seed
+.npm/
