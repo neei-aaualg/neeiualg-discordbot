@@ -120,8 +120,8 @@ export function buildUltimateLeiContainer(boxUrl = 'https://box.neei.online/', s
         '  - Frequências, testes e exames de anos anteriores.\n' +
         '  - Guias práticos, exercícios resolvidos e recursos de apoio.\n\n' +
         '• **Link da Plataforma:**\n' +
-        `\`${boxUrl}\`\n\n` +
-        '-# Clica nos botões abaixo para acederes diretamente ou copiares o link.'
+        `\`\`\`${boxUrl}\`\`\`\n` +
+        '-# Clica no botão abaixo para acederes diretamente à plataforma.'
       )
     )
     .setThumbnailAccessory(
@@ -138,13 +138,7 @@ export function buildUltimateLeiContainer(boxUrl = 'https://box.neei.online/', s
     .setURL(boxUrl)
     .setEmoji('📦');
 
-  const copyButton = new ButtonBuilder()
-    .setCustomId('copy_ultimate_link')
-    .setLabel('Copiar Link')
-    .setStyle(ButtonStyle.Secondary)
-    .setEmoji('📋');
-
-  const buttonRow = new ActionRowBuilder().addComponents(linkButton, copyButton);
+  const buttonRow = new ActionRowBuilder().addComponents(linkButton);
 
   return new ContainerBuilder()
     .setAccentColor(0x24242A)
