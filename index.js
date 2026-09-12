@@ -18,6 +18,7 @@ import { registerMessageLogsEvents } from './src/events/messageLogs.js';
 import { registerActionLogsEvents } from './src/events/actionLogs.js';
 import { registerVoiceLogsEvents } from './src/events/voiceLogs.js';
 import { validateEnvVars } from './src/utils/envValidator.js';
+import { prisma } from './src/database/prisma.js';
 
 // Carrega as variáveis de ambiente do ficheiro .env
 dotenv.config();
@@ -124,6 +125,12 @@ async function registerSlashCommands() {
 // Evento disparado quando o bot se conecta com sucesso ao Discord
 client.once(Events.ClientReady, async (readyClient) => {
   console.log(`\n🤖 Bot online como ${readyClient.user.tag}!`);
+  try {
+    await prisma.$connect();
+    console.log(`📀 Ligação à Base de Dados PostgreSQL estabelecida com sucesso!`);
+  } catch (dbError) {
+    console.error(`❌ Erro ao ligar à Base de Dados PostgreSQL:`, dbError);
+  }
   console.log(`💡 Dica: Escreve 'r' ou 'reload' nesta consola e prime Enter para dar reload nos comandos!\n`);
   await registerSlashCommands();
 });

@@ -1,5 +1,6 @@
 import { MessageFlags, ChannelType, PermissionFlagsBits } from 'discord.js';
 import { buildWelcomeContainer, welcomeMessageMap } from '../utils/welcomeCard.js';
+import { prisma } from '../database/prisma.js';
 
 /**
  * Evento acionado automaticamente quando um novo membro se junta ao servidor.
@@ -44,12 +45,27 @@ export async function handleGuildMemberAdd(member) {
       return;
     }
 
-    // Verifica se o membro já se encontra verificado
+    // Verifica se o membro já se encontra registado na Base de Dados ou com cargo
+    const student = await prisma.student.findUnique({
+      where: { discordId: member.id }
+    }).catch(() => null);
+
     const verifiedRoleId = process.env.VERIFIED_ROLE_ID;
-    const isVerified = Boolean(verifiedRoleId && member.roles.cache.has(verifiedRoleId));
+    const isVerified = Boolean((verifiedRoleId && member.roles.cache.has(verifiedRoleId)) || student);
+
+    // Se já estava registado na BD mas não tem os cargos (ex: reentrou no servidor), restaura a alcunha
+    if (student) {
+      const studentName = `${student.firstName} ${student.lastName}`.trim();
+      if (studentName) {
+        await member.setNickname(studentName).catch(() => null);
+      }
+      if (verifiedRoleId && !member.roles.cache.has(verifiedRoleId)) {
+        await member.roles.add(verifiedRoleId).catch(() => null);
+      }
+    }
 
     // Constrói o Container V2 de entrada/boas-vindas
-    const container = buildWelcomeContainer(member, isVerified, null);
+    const container = buildWelcomeContainer(member, isVerified, student);
 
     // Envia a mensagem de entrada no canal
     const sentMessage = await welcomeChannel.send({

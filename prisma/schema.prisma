@@ -1,0 +1,67 @@
+// Ficheiro de Esquema da Base de Dados do NEEI Discord Bot (Prisma ORM)
+// Documentação: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ------------------------------------------------------
+// 🔰 Alunos Verificados no Servidor
+// ------------------------------------------------------
+model Student {
+  discordId     String   @id @unique
+  firstName     String
+  lastName      String
+  studentNumber String
+  course        String   // 'lei', 'psc', 'mei', 'outro'
+  subjects      String[] // Array com IDs das cadeiras/unidades curriculares
+  verifiedAt    DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([studentNumber])
+}
+
+// ------------------------------------------------------
+// 🎫 Registo e Gestão de Tickets de Suporte
+// ------------------------------------------------------
+model Ticket {
+  id             Int       @id @default(autoincrement())
+  channelId      String    @unique
+  creatorId      String
+  creatorTag     String?
+  category       String    // Categoria/Curso do ticket
+  status         String    @default("OPEN") // 'OPEN', 'IN_PROGRESS', 'CLOSED'
+  claimedById    String?
+  claimedByName  String?
+  claimedAt      DateTime?
+  closedById     String?
+  closedByName   String?
+  closedAt       DateTime?
+  closeReason    String?
+  rating         Int?      // Avaliação dada pelo utilizador (1 a 5)
+  feedbackReason String?
+  transcriptUrl  String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([creatorId])
+  @@index([status])
+}
+
+// ------------------------------------------------------
+// 🎮 Preferências de Jogos dos Membros
+// ------------------------------------------------------
+model GamePreference {
+  id        Int      @id @default(autoincrement())
+  discordId String
+  gameId    String
+  createdAt DateTime @default(now())
+
+  @@unique([discordId, gameId])
+  @@index([discordId])
+}

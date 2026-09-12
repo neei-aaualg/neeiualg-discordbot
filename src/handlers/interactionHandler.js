@@ -24,6 +24,7 @@ import { updateMemberWelcomeCard, sendPublicWelcomeCard } from '../utils/welcome
 import { GAMES_LIST, getGameRoleId, getGamersGeneralRoleId, buildEphemeralGamesContainer } from '../utils/gamesData.js';
 import { createTicketTranscript } from '../utils/transcriptHelper.js';
 import { logInteraction, logUnauthorizedAccess } from '../utils/logger.js';
+import { prisma } from '../database/prisma.js';
 
 // Armazena temporariamente os dados do processo de verificação em memória (por userId)
 const verificationSessions = new Map();
@@ -1217,6 +1218,29 @@ export async function handleInteraction(interaction, commands) {
         };
         activeTickets.set(ticketChannel.id, ticketData);
 
+        // Regista o ticket na Base de Dados PostgreSQL
+        try {
+          await prisma.ticket.upsert({
+            where: { channelId: ticketChannel.id },
+            update: {
+              creatorId: interaction.user.id,
+              creatorTag: interaction.user.tag || interaction.user.username,
+              category: ticketSession.course || 'geral',
+              status: 'OPEN'
+            },
+            create: {
+              channelId: ticketChannel.id,
+              creatorId: interaction.user.id,
+              creatorTag: interaction.user.tag || interaction.user.username,
+              category: ticketSession.course || 'geral',
+              status: 'OPEN'
+            }
+          });
+          console.log(`📀 [BD] Ticket #${ticketChannel.name} (${ticketChannel.id}) registado na Base de Dados!`);
+        } catch (dbErr) {
+          console.error('❌ [BD] Erro ao criar ticket na base de dados:', dbErr);
+        }
+
         // Edita a mensagem efémera do utilizador informando o sucesso com link para o canal
         const successContainer = buildTicketCreatedSuccessContainer(interaction.user, ticketChannel, guild.id);
         await interaction.editReply({
@@ -1353,7 +1377,34 @@ export async function handleInteraction(interaction, commands) {
       }).catch(err => console.error('Erro ao atualizar botão no canal do ticket:', err));
 
       // Atualiza o rastreio do ticket em memória, a DM do utilizador e o canal de logs
-      const ticketData = activeTickets.get(interaction.channel.id);
+      let ticketData = activeTickets.get(interaction.channel.id);
+      if (!ticketData) {
+        const dbTicket = await prisma.ticket.findUnique({
+          where: { channelId: interaction.channel.id }
+        }).catch(() => null);
+
+        if (dbTicket) {
+          const authorUser = await interaction.client.users.fetch(dbTicket.creatorId).catch(() => null);
+          ticketData = {
+            channelId: dbTicket.channelId,
+            channelName: interaction.channel.name,
+            userId: dbTicket.creatorId,
+            user: authorUser,
+            session: { course: dbTicket.category || 'outro', subject: 'Ticket de Suporte', description: '' },
+            createdAt: Math.floor(new Date(dbTicket.createdAt).getTime() / 1000),
+            answeredBy: null,
+            answeredAt: null,
+            closedBy: null,
+            closedAt: null,
+            transcriptUrl: dbTicket.transcriptUrl,
+            rating: dbTicket.rating,
+            dmMessage: null,
+            logMessage: null
+          };
+          activeTickets.set(interaction.channel.id, ticketData);
+        }
+      }
+
       if (ticketData) {
         ticketData.answeredBy = interaction.user;
         ticketData.answeredAt = Math.floor(Date.now() / 1000);
@@ -1372,6 +1423,22 @@ export async function handleInteraction(interaction, commands) {
             components: [updatedLogContainer],
             flags: MessageFlags.IsComponentsV2
           }).catch(err => console.error('Erro ao atualizar log do ticket ao responder:', err));
+        }
+
+        // Atualiza na Base de Dados PostgreSQL
+        try {
+          await prisma.ticket.updateMany({
+            where: { channelId: interaction.channel.id },
+            data: {
+              status: 'IN_PROGRESS',
+              claimedById: interaction.user.id,
+              claimedByName: interaction.user.tag || interaction.user.username,
+              claimedAt: new Date()
+            }
+          });
+          console.log(`📀 [BD] Ticket #${interaction.channel.name} marcado em atendimento por ${interaction.user.tag}!`);
+        } catch (dbErr) {
+          console.error('❌ [BD] Erro ao atualizar status do ticket na BD:', dbErr);
         }
       }
 
@@ -1579,6 +1646,34 @@ export async function handleInteraction(interaction, commands) {
         // Obtém ou inicializa os dados do ticket
         let ticketData = activeTickets.get(interaction.channel.id);
         if (!ticketData) {
+          // Tenta carregar primeiro os dados originais da Base de Dados PostgreSQL
+          const dbTicket = await prisma.ticket.findUnique({
+            where: { channelId: interaction.channel.id }
+          }).catch(() => null);
+
+          if (dbTicket) {
+            const authorUser = await interaction.client.users.fetch(dbTicket.creatorId).catch(() => null);
+            ticketData = {
+              channelId: dbTicket.channelId,
+              channelName: interaction.channel.name,
+              userId: dbTicket.creatorId,
+              user: authorUser,
+              session: { course: dbTicket.category || 'outro', subject: 'Ticket de Suporte', description: 'Atendimento encerrado.' },
+              createdAt: Math.floor(new Date(dbTicket.createdAt).getTime() / 1000),
+              answeredBy: dbTicket.claimedById ? { id: dbTicket.claimedById, tag: dbTicket.claimedByName } : null,
+              answeredAt: dbTicket.claimedAt ? Math.floor(new Date(dbTicket.claimedAt).getTime() / 1000) : null,
+              closedBy: interaction.user,
+              closedAt: Math.floor(Date.now() / 1000),
+              transcriptUrl: null,
+              rating: null,
+              dmMessage: null,
+              logMessage: null
+            };
+            activeTickets.set(interaction.channel.id, ticketData);
+          }
+        }
+
+        if (!ticketData) {
           // Identifica o autor do ticket através das permissões do canal
           let authorUser = null;
           const overwrites = interaction.channel?.permissionOverwrites?.cache;
@@ -1708,6 +1803,39 @@ export async function handleInteraction(interaction, commands) {
             content: `⚠️ **Aviso:** Não foi possível enviar a notificação por DM ao utilizador <@${ticketData.userId}> (DMs bloqueadas ou utilizador indisponível).`
           }).catch(() => null);
         }
+
+        // 6. Atualiza ou cria o registo de encerramento na Base de Dados PostgreSQL
+        try {
+          await prisma.ticket.upsert({
+            where: { channelId: interaction.channel.id },
+            update: {
+              status: 'CLOSED',
+              closedById: interaction.user.id,
+              closedByName: interaction.user.tag || interaction.user.username,
+              closedAt: new Date(),
+              transcriptUrl: ticketData.transcriptUrl || null,
+              ...(ticketData.answeredBy ? {
+                claimedById: ticketData.answeredBy.id,
+                claimedByName: ticketData.answeredBy.tag || ticketData.answeredBy.username,
+                claimedAt: ticketData.answeredAt ? new Date(ticketData.answeredAt * 1000) : new Date()
+              } : {})
+            },
+            create: {
+              channelId: interaction.channel.id,
+              creatorId: ticketData.userId,
+              creatorTag: ticketData.user?.tag || ticketData.user?.username || null,
+              category: ticketData.session?.course || 'geral',
+              status: 'CLOSED',
+              closedById: interaction.user.id,
+              closedByName: interaction.user.tag || interaction.user.username,
+              closedAt: new Date(),
+              transcriptUrl: ticketData.transcriptUrl || null
+            }
+          });
+          console.log(`📀 [BD] Ticket #${interaction.channel.name} registado como FECHADO na Base de Dados!`);
+        } catch (dbErr) {
+          console.error('❌ [BD] Erro ao atualizar fecho do ticket na BD:', dbErr);
+        }
       } catch (err) {
         console.error('Erro durante o fecho do ticket:', err);
       }
@@ -1777,6 +1905,20 @@ export async function handleInteraction(interaction, commands) {
           }
         }
       }
+
+      // 3. Atualiza a avaliação na Base de Dados PostgreSQL
+      const targetChannelId = tempTicketData?.channelId || channelId;
+      if (targetChannelId) {
+        try {
+          await prisma.ticket.updateMany({
+            where: { channelId: targetChannelId },
+            data: { rating: stars }
+          });
+          console.log(`📀 [BD] Avaliação de ${stars} estrelas registada para o ticket ${targetChannelId}!`);
+        } catch (dbErr) {
+          console.error('❌ [BD] Erro ao guardar avaliação na BD:', dbErr);
+        }
+      }
       return;
     }
 
@@ -1842,6 +1984,11 @@ export async function handleInteraction(interaction, commands) {
           console.warn(`⚠️ [WARN-002] Erro ao remover cargo do jogo ${game.name}:`, err.message);
         });
 
+        // Remove a preferência de jogo na Base de Dados
+        await prisma.gamePreference.deleteMany({
+          where: { discordId: member.id, gameId }
+        }).catch(() => null);
+
         // Verificar se ainda tem algum outro cargo de jogo específico ativo
         const remainingGameRoles = GAMES_LIST
           .map(g => getGameRoleId(g.id)?.trim())
@@ -1860,6 +2007,13 @@ export async function handleInteraction(interaction, commands) {
         await member.roles.add(roleId.trim()).catch(err => {
           console.warn(`⚠️ [WARN-002] Erro ao adicionar cargo do jogo ${game.name}:`, err.message);
         });
+
+        // Regista a preferência de jogo na Base de Dados
+        await prisma.gamePreference.upsert({
+          where: { discordId_gameId: { discordId: member.id, gameId } },
+          create: { discordId: member.id, gameId },
+          update: {}
+        }).catch(() => null);
 
         // Garantir que também recebe o cargo geral Gamers
         if (gamersRoleId && !member.roles.cache.has(gamersRoleId)) {
@@ -1956,6 +2110,24 @@ export async function handleInteraction(interaction, commands) {
 
     // Botão de Iniciar Verificação OU Editar Dados Pessoais
     if (buttonId === 'start_verification_dm' || buttonId === 'edit_modal_data') {
+      // Se não tiver sessão em memória, tenta recuperar os dados anteriores da base de dados
+      if (!session.firstName) {
+        const existingStudent = await prisma.student.findUnique({
+          where: { discordId: userId }
+        }).catch(() => null);
+
+        if (existingStudent) {
+          session.firstName = existingStudent.firstName;
+          session.lastName = existingStudent.lastName;
+          session.studentNumber = existingStudent.studentNumber;
+          if (!session.course) session.course = existingStudent.course;
+          if (!session.selectedSubjects || session.selectedSubjects.size === 0) {
+            session.selectedSubjects = new Set(existingStudent.subjects || []);
+          }
+          verificationSessions.set(userId, session);
+        }
+      }
+
       const modal = new ModalBuilder()
         .setCustomId('verification_modal')
         .setTitle('Formulário de Verificação');
@@ -2246,6 +2418,37 @@ export async function handleInteraction(interaction, commands) {
       const targetMember = targetGuild ? await targetGuild.members.fetch(interaction.user.id).catch(() => null) : null;
       if (targetMember) {
         await sendPublicWelcomeCard(interaction.client, targetMember, session);
+      }
+
+      // 3. Regista ou atualiza permanentemente o aluno na Base de Dados PostgreSQL
+      try {
+        const subjectsArray = session.selectedSubjects && session.selectedSubjects.size > 0
+          ? Array.from(session.selectedSubjects)
+          : [];
+
+        await prisma.student.upsert({
+          where: { discordId: interaction.user.id },
+          update: {
+            firstName: session.firstName,
+            lastName: session.lastName,
+            studentNumber: String(session.studentNumber),
+            course: session.course,
+            subjects: subjectsArray,
+            verifiedAt: new Date()
+          },
+          create: {
+            discordId: interaction.user.id,
+            firstName: session.firstName,
+            lastName: session.lastName,
+            studentNumber: String(session.studentNumber),
+            course: session.course,
+            subjects: subjectsArray,
+            verifiedAt: new Date()
+          }
+        });
+        console.log(`📀 [BD] Aluno ${session.firstName} ${session.lastName} (${session.studentNumber}) registado com sucesso na Base de Dados!`);
+      } catch (dbErr) {
+        console.error('❌ [BD] Erro ao guardar aluno na base de dados:', dbErr);
       }
 
       const finalSection = new SectionBuilder()

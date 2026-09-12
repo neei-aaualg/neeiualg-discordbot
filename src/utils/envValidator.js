@@ -11,7 +11,7 @@ export function validateEnvVars() {
   const missingGlobalLogs = [];
 
   // 1. Configurações Principais
-  const coreVars = ['DISCORD_TOKEN', 'CLIENT_ID', 'GUILD_ID'];
+  const coreVars = ['DISCORD_TOKEN', 'CLIENT_ID', 'GUILD_ID', 'DATABASE_URL'];
   for (const key of coreVars) {
     if (!process.env[key] || !process.env[key].trim()) {
       missingCore.push(key);
