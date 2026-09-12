@@ -112,9 +112,16 @@ export async function sendPublicWelcomeCard(client, member, sessionData) {
       .setDivider(true)
       .setSpacing(SeparatorSpacingSize.Small);
 
-    // Linha 1 de botões: Website Oficial do NEEI
+    // URLs
     const siteUrl = process.env.NEEI_SITE_URL || 'https://neeiualg.vercel.app/';
-    const siteRow = new ActionRowBuilder().addComponents(
+    const ghUrl = process.env.NEEI_GITHUB_URL || 'https://github.com/neei-aaualg';
+    const liUrl = process.env.NEEI_LINKEDIN_URL || 'https://linkedin.com/company/neeiualg';
+    const waUrl = process.env.NEEI_WHATSAPP_URL || 'https://chat.whatsapp.com/';
+    const igUrl = process.env.NEEI_INSTAGRAM_URL || 'https://instagram.com/neeiualg';
+    const fbUrl = process.env.NEEI_FACEBOOK_URL || 'https://facebook.com/neeiualg';
+
+    // Linha 1: Website Oficial
+    const row1 = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setLabel('Website Oficial')
         .setStyle(ButtonStyle.Link)
@@ -122,27 +129,26 @@ export async function sendPublicWelcomeCard(client, member, sessionData) {
         .setEmoji('🌐')
     );
 
-    // Linha 2 de botões: Redes Sociais e Contactos (WhatsApp + Redes Sociais)
-    const waUrl = process.env.NEEI_WHATSAPP_URL || 'https://chat.whatsapp.com/';
-    const fbUrl = process.env.NEEI_FACEBOOK_URL || 'https://facebook.com/neeiualg';
-    const igUrl = process.env.NEEI_INSTAGRAM_URL || 'https://instagram.com/neeiualg';
-    const ghUrl = process.env.NEEI_GITHUB_URL || 'https://github.com/neei-aaualg';
-    const liUrl = process.env.NEEI_LINKEDIN_URL || 'https://linkedin.com/company/neeiualg';
+    // Linha 2: GitHub e LinkedIn
+    const row2 = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setLabel('GitHub').setStyle(ButtonStyle.Link).setURL(ghUrl).setEmoji('🐙'),
+      new ButtonBuilder().setLabel('LinkedIn').setStyle(ButtonStyle.Link).setURL(liUrl).setEmoji('💼')
+    );
 
-    const socialRow = new ActionRowBuilder().addComponents(
+    // Linha 3: Resto das redes sociais (WhatsApp, Instagram, Facebook)
+    const row3 = new ActionRowBuilder().addComponents(
       new ButtonBuilder().setLabel('WhatsApp').setStyle(ButtonStyle.Link).setURL(waUrl).setEmoji('💬'),
       new ButtonBuilder().setLabel('Instagram').setStyle(ButtonStyle.Link).setURL(igUrl).setEmoji('📸'),
-      new ButtonBuilder().setLabel('Facebook').setStyle(ButtonStyle.Link).setURL(fbUrl).setEmoji('📘'),
-      new ButtonBuilder().setLabel('LinkedIn').setStyle(ButtonStyle.Link).setURL(liUrl).setEmoji('💼'),
-      new ButtonBuilder().setLabel('GitHub').setStyle(ButtonStyle.Link).setURL(ghUrl).setEmoji('🐙')
+      new ButtonBuilder().setLabel('Facebook').setStyle(ButtonStyle.Link).setURL(fbUrl).setEmoji('📘')
     );
 
     const publicContainer = new ContainerBuilder()
       .setAccentColor(0x24242A)
       .addSectionComponents(section)
       .addSeparatorComponents(separator)
-      .addActionRowComponents(siteRow)
-      .addActionRowComponents(socialRow);
+      .addActionRowComponents(row1)
+      .addActionRowComponents(row2)
+      .addActionRowComponents(row3);
 
     await channel.send({
       components: [publicContainer],
