@@ -9,6 +9,7 @@
     "dev": "node --watch index.js",
     "deploy": "node deploy-commands.js",
     "studio": "prisma studio",
+    "studio:server": "prisma studio --port 5555 --hostname 0.0.0.0 --browser none",
     "db:push": "prisma db push",
     "postinstall": "prisma generate"
   },
