@@ -150,7 +150,7 @@ Auditoria em tempo real isolada no módulo `src/utils/logger.js` com tratamento 
 - `/regras`: Exibe as regras oficiais do servidor.
 - `/site`: Apresenta o painel do Website Oficial do NEEI.
 - `/convite`: Apresenta o convite permanente do servidor com botão para copiar a ligação.
-- `/ultimate-lei` / `/neei-box`: Acesso ao repositório NEEI-Box com material de estudo, sebentas e exames de anos anteriores.
+- `/ultimate-lei` / `/neei-box`: Acesso à plataforma NEEI-Box com material de estudo, sebentas e exames de anos anteriores.
 - `/limpar-dm`: Elimina as mensagens privadas enviadas pelo bot ao membro.
 - `/fechar`: Encerra o ticket de suporte atual e gera a transcrição em HTML.
 
@@ -168,8 +168,8 @@ Auditoria em tempo real isolada no módulo `src/utils/logger.js` com tratamento 
 | `/regras` | Envia o painel com as regras oficiais do servidor. | Todos |
 | `/site` | Envia o painel com a ligação para o Website Oficial do NEEI. | Todos |
 | `/convite` | Envia o painel com o convite permanente do servidor. | Todos |
-| `/neei-box` | Envia o painel do repositório NEEI-Box com materiais de estudo. | Todos |
-| `/ultimate-lei` | Alias alternativo para o painel da NEEI-Box. | Todos |
+| `/neei-box` | Envia o painel da plataforma NEEI-Box com materiais de estudo. | Todos |
+| `/ultimate-lei` | Alias alternativo para o painel da plataforma NEEI-Box. | Todos |
 | `/limpar-dm` | Elimina as mensagens privadas enviadas pelo bot na DM do membro. | Todos |
 
 ---

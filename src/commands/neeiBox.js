@@ -3,7 +3,7 @@ import { buildUltimateLeiContainer, sendPanelMessage } from '../utils/panelBuild
 
 export const data = new SlashCommandBuilder()
   .setName('neei-box')
-  .setDescription('Envia a mensagem em Container V2 com o link da NEEI-Box (material de estudo)')
+  .setDescription('Envia a mensagem em Container V2 com o link da plataforma NEEI-Box (material de estudo)')
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
   .addChannelOption(option =>
     option

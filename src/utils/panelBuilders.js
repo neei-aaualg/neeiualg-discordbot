@@ -105,7 +105,7 @@ export function buildConviteContainer(inviteUrl = 'https://discord.gg/HzBuRFCAb5
 }
 
 /**
- * Constrói o Container V2 para o painel da NEEI-Box (Repositório de Estudo).
+ * Constrói o Container V2 para o painel da NEEI-Box (Plataforma de Estudo).
  */
 export function buildUltimateLeiContainer(boxUrl = 'https://box.neei.online/', serverIconUrl = null) {
   const iconUrl = serverIconUrl || DEFAULT_FALLBACK_IMAGE;
@@ -113,13 +113,13 @@ export function buildUltimateLeiContainer(boxUrl = 'https://box.neei.online/', s
   const section = new SectionBuilder()
     .addTextDisplayComponents(
       new TextDisplayBuilder().setContent(
-        '# `📦` NEEI-Box — Repositório de Estudo\n' +
-        'A **NEEI-Box** é a nossa plataforma onde encontras todo o material de estudo essencial para o teu percurso académico!\n\n' +
+        '# `📦` NEEI-Box — Plataforma de Estudo\n' +
+        'A **NEEI-Box** é a nossa plataforma oficial, totalmente desenvolvida por nós, onde encontras todo o material de estudo essencial para o teu percurso académico!\n\n' +
         '• **O que encontras na NEEI-Box:**\n' +
         '  - Apontamentos, resumos e sebentas de várias disciplinas.\n' +
         '  - Frequências, testes e exames de anos anteriores.\n' +
         '  - Guias práticos, exercícios resolvidos e recursos de apoio.\n\n' +
-        '• **Link da NEEI-Box:**\n' +
+        '• **Link da Plataforma:**\n' +
         `\`${boxUrl}\`\n\n` +
         '-# Clica nos botões abaixo para acederes diretamente ou copiares o link.'
       )
