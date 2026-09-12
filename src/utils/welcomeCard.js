@@ -112,23 +112,36 @@ export async function sendPublicWelcomeCard(client, member, sessionData) {
       .setDivider(true)
       .setSpacing(SeparatorSpacingSize.Small);
 
-    // Linha de botões com links para as redes sociais do NEEI
+    // Linha 1 de botões: Website Oficial do NEEI
+    const siteUrl = process.env.NEEI_SITE_URL || 'https://neeiualg.vercel.app/';
+    const siteRow = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setLabel('Website Oficial')
+        .setStyle(ButtonStyle.Link)
+        .setURL(siteUrl)
+        .setEmoji('🌐')
+    );
+
+    // Linha 2 de botões: Redes Sociais e Contactos (WhatsApp + Redes Sociais)
+    const waUrl = process.env.NEEI_WHATSAPP_URL || 'https://chat.whatsapp.com/';
     const fbUrl = process.env.NEEI_FACEBOOK_URL || 'https://facebook.com/neeiualg';
     const igUrl = process.env.NEEI_INSTAGRAM_URL || 'https://instagram.com/neeiualg';
-    const ghUrl = process.env.NEEI_GITHUB_URL || 'https://github.com/neei-ualg';
+    const ghUrl = process.env.NEEI_GITHUB_URL || 'https://github.com/neei-aaualg';
     const liUrl = process.env.NEEI_LINKEDIN_URL || 'https://linkedin.com/company/neeiualg';
 
     const socialRow = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setLabel('Facebook').setStyle(ButtonStyle.Link).setURL(fbUrl).setEmoji('📘'),
+      new ButtonBuilder().setLabel('WhatsApp').setStyle(ButtonStyle.Link).setURL(waUrl).setEmoji('💬'),
       new ButtonBuilder().setLabel('Instagram').setStyle(ButtonStyle.Link).setURL(igUrl).setEmoji('📸'),
-      new ButtonBuilder().setLabel('GitHub').setStyle(ButtonStyle.Link).setURL(ghUrl).setEmoji('🐙'),
-      new ButtonBuilder().setLabel('LinkedIn').setStyle(ButtonStyle.Link).setURL(liUrl).setEmoji('💼')
+      new ButtonBuilder().setLabel('Facebook').setStyle(ButtonStyle.Link).setURL(fbUrl).setEmoji('📘'),
+      new ButtonBuilder().setLabel('LinkedIn').setStyle(ButtonStyle.Link).setURL(liUrl).setEmoji('💼'),
+      new ButtonBuilder().setLabel('GitHub').setStyle(ButtonStyle.Link).setURL(ghUrl).setEmoji('🐙')
     );
 
     const publicContainer = new ContainerBuilder()
       .setAccentColor(0x24242A)
       .addSectionComponents(section)
       .addSeparatorComponents(separator)
+      .addActionRowComponents(siteRow)
       .addActionRowComponents(socialRow);
 
     await channel.send({
