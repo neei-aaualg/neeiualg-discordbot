@@ -39,9 +39,9 @@ export function buildWelcomeContainer(member, isVerified = false, sessionData = 
 
   const detailsText = isVerified && sessionData
     ? `• **Nome Completo:** ${sessionData.firstName || ''} ${sessionData.lastName || ''}\n` +
-      `• **Número de Aluno:** ${sessionData.studentNumber || ''}\n` +
-      `• **Curso:** ${getCourseName ? getCourseName(sessionData.course) : (sessionData.course || 'Não definido')}\n` +
-      `• **Verificado em:** <t:${now}:F> (<t:${now}:R>)\n`
+    `• **Número de Aluno:** ${sessionData.studentNumber || ''}\n` +
+    `• **Curso:** ${getCourseName ? getCourseName(sessionData.course) : (sessionData.course || 'Não definido')}\n` +
+    `• **Verificado em:** <t:${now}:F> (<t:${now}:R>)\n`
     : `• *O membro ainda não concluiu a verificação nas mensagens privadas (DM).*\n`;
 
   // Secção de Cabeçalho Interno com Thumbnail (Avatar do Membro no canto superior direito)
@@ -113,17 +113,17 @@ export async function sendPublicWelcomeCard(client, member, sessionData) {
       .setSpacing(SeparatorSpacingSize.Small);
 
     // URLs
-    const siteUrl = process.env.NEEI_SITE_URL || 'https://neeiualg.vercel.app/';
+    const siteUrl = process.env.NEEI_SITE_URL || 'https://neei.online/';
     const ghUrl = process.env.NEEI_GITHUB_URL || 'https://github.com/neei-aaualg';
     const liUrl = process.env.NEEI_LINKEDIN_URL || 'https://linkedin.com/company/neeiualg';
-    const waUrl = process.env.NEEI_WHATSAPP_URL || 'https://chat.whatsapp.com/';
+    const waUrl = process.env.NEEI_WHATSAPP_URL || 'https://chat.whatsapp.com/GZk6qaL0nqZ8597PaSJJwq/';
     const igUrl = process.env.NEEI_INSTAGRAM_URL || 'https://instagram.com/neeiualg';
     const fbUrl = process.env.NEEI_FACEBOOK_URL || 'https://facebook.com/neeiualg';
 
     // Linha 1: Website Oficial
     const row1 = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
-        .setLabel('Website Oficial')
+        .setLabel('Site do NEEI')
         .setStyle(ButtonStyle.Link)
         .setURL(siteUrl)
         .setEmoji('🌐')
