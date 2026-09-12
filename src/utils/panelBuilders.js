@@ -14,18 +14,19 @@ import {
 } from 'discord.js';
 
 const DEFAULT_FALLBACK_IMAGE = 'https://cdn.discordapp.com/embed/avatars/0.png';
-const DEFAULT_SITE_IMAGE = 'https://cdn.discordapp.com/attachments/1532042242259161169/1532042338032025793/image.png?ex=6a6c11dd&is=6a6ac05d&hm=259cdaca62691f8e4cc08d4906dee01c803a2442000e3a3d1be4ada2e4753ff8&';
+const DEFAULT_SITE_IMAGE = 'https://cdn.discordapp.com/attachments/1532042242259161169/1548403360816693438/image.png?ex=6aa6ee81&is=6aa59d01&hm=034dc4c82de3a892b21f2e9793b4ef52a782849f89e283083daf77721107a597&';
 
 /**
  * Constrói o Container V2 para a mensagem do Website Oficial do NEEI.
  */
-export function buildSiteContainer(siteUrl = 'https://neeiualg.vercel.app/', imageUrl = DEFAULT_SITE_IMAGE) {
+export function buildSiteContainer(siteUrl = (process.env.NEEI_SITE_URL || 'https://neei.online/'), imageUrl = DEFAULT_SITE_IMAGE) {
   const finalImageUrl = imageUrl || DEFAULT_SITE_IMAGE;
+  const finalSiteUrl = siteUrl || process.env.NEEI_SITE_URL || 'https://neei.online/';
 
   const linkButton = new ButtonBuilder()
     .setLabel('Visitar Website')
     .setStyle(ButtonStyle.Link)
-    .setURL(siteUrl)
+    .setURL(finalSiteUrl)
     .setEmoji('🌐');
 
   const section = new SectionBuilder()

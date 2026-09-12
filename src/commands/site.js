@@ -15,7 +15,7 @@ export const data = new SlashCommandBuilder()
   .addStringOption(option =>
     option
       .setName('url')
-      .setDescription('URL do website (por omissão: https://neeiualg.vercel.app/)')
+      .setDescription('URL do website (por omissão: https://neei.online/)')
       .setRequired(false)
   )
   .addStringOption(option =>
@@ -27,7 +27,7 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction) {
   const targetChannel = interaction.options.getChannel('canal') || interaction.channel;
-  const siteUrl = interaction.options.getString('url') || 'https://neeiualg.vercel.app/';
+  const siteUrl = interaction.options.getString('url') || process.env.NEEI_SITE_URL || 'https://neei.online/';
   const imageUrl = interaction.options.getString('imagem');
 
   const container = buildSiteContainer(siteUrl, imageUrl);
