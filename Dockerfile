@@ -15,5 +15,7 @@ RUN npm install
 # Copia o código fonte do bot
 COPY . .
 
-# Inicia o bot
-CMD ["npm", "start"]
+EXPOSE 5555
+
+# Se a variável APP_TYPE for "studio", inicia o Prisma Studio; caso contrário, inicia o bot
+CMD ["sh", "-c", "if [ \"$APP_TYPE\" = \"studio\" ]; then npm run studio:server; else npm start; fi"]
