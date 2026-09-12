@@ -2,7 +2,7 @@ import { SlashCommandBuilder, PermissionFlagsBits, ChannelType } from 'discord.j
 import { buildUltimateLeiContainer, sendPanelMessage } from '../utils/panelBuilders.js';
 
 export const data = new SlashCommandBuilder()
-  .setName('ultimate-lei')
+  .setName('neei-box')
   .setDescription('Envia a mensagem em Container V2 com o link da NEEI-Box (material de estudo)')
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
   .addChannelOption(option =>

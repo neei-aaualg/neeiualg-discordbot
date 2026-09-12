@@ -1011,11 +1011,11 @@ export async function handleInteraction(interaction, commands) {
       return;
     }
 
-    // Botão para copiar o link do Ultimate LEI
-    if (buttonId === 'copy_ultimate_link') {
-      const ultimateUrl = process.env.ULTIMATE_LEI_URL || 'https://www.dropbox.com/';
+    // Botão para copiar o link da NEEI-Box
+    if (buttonId === 'copy_ultimate_link' || buttonId === 'copy_box_link') {
+      const boxUrl = process.env.NEEI_BOX_URL || process.env.ULTIMATE_LEI_URL || 'https://box.neei.online/';
       await interaction.reply({
-        content: `📋 **Link do Ultimate LEI (pronto a copiar):**\n\`${ultimateUrl}\``,
+        content: `📋 **Link da NEEI-Box (pronto a copiar):**\n\`${boxUrl}\``,
         flags: MessageFlags.Ephemeral
       });
       return;

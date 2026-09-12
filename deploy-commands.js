@@ -7,6 +7,7 @@ import { data as siteData } from './src/commands/site.js';
 import { data as regrasData } from './src/commands/regras.js';
 import { data as conviteData } from './src/commands/convite.js';
 import { data as ultimateLeiData } from './src/commands/ultimateLei.js';
+import { data as neeiBoxData } from './src/commands/neeiBox.js';
 import { data as jogosData } from './src/commands/jogos.js';
 import { data as ticketData } from './src/commands/ticket.js';
 import { data as fecharData } from './src/commands/fechar.js';
@@ -29,6 +30,7 @@ const commands = [
   regrasData.toJSON(),
   conviteData.toJSON(),
   ultimateLeiData.toJSON(),
+  neeiBoxData.toJSON(),
   jogosData.toJSON(),
   ticketData.toJSON(),
   fecharData.toJSON(),

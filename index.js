@@ -8,6 +8,7 @@ import { data as siteData, execute as siteExecute } from './src/commands/site.js
 import { data as regrasData, execute as regrasExecute } from './src/commands/regras.js';
 import { data as conviteData, execute as conviteExecute } from './src/commands/convite.js';
 import { data as ultimateLeiData, execute as ultimateLeiExecute } from './src/commands/ultimateLei.js';
+import { data as neeiBoxData, execute as neeiBoxExecute } from './src/commands/neeiBox.js';
 import { data as jogosData, execute as jogosExecute } from './src/commands/jogos.js';
 import { data as ticketData, execute as ticketExecute } from './src/commands/ticket.js';
 import { data as fecharData, execute as fecharExecute } from './src/commands/fechar.js';
@@ -82,6 +83,11 @@ client.commands.set(conviteData.name, {
 client.commands.set(ultimateLeiData.name, {
   data: ultimateLeiData,
   execute: ultimateLeiExecute
+});
+
+client.commands.set(neeiBoxData.name, {
+  data: neeiBoxData,
+  execute: neeiBoxExecute
 });
 
 client.commands.set(jogosData.name, {
